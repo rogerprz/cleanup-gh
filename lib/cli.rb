@@ -104,9 +104,12 @@ def handle_delete_repos(repos)
 end
 
 def get_filter_key
-  puts "\n*************************"
+  puts "\n*********************************************************"
+  puts "-----------------------------------------------------------"
+  puts "|                         FILTER REPOS                    |"
+  puts "-----------------------------------------------------------"
   puts "Enter'c' to cancel and return to main menu: \n\n"
-  puts "Enter key words to filter repos. i.e. user, ruby, 05191990, april"
+  puts "Enter keywords to filter repos. i.e. user, ruby, 05191990, april"
 
   input = gets.chomp
   main_menu if input == 'cancel'
@@ -116,7 +119,7 @@ end
 def handle_repo_filter(key)
   ARGUMENTS['select_repos'] =
     ARGUMENTS['repos'].select do |repo|
-      repo['full_repo_name'].include?(key)
+      repo['full_name'].include?(key)
     end
   print_repos(ARGUMENTS['select_repos'])
   main_menu

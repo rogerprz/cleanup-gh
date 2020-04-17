@@ -42,7 +42,7 @@ def remove_repo(full_repo_name)
   puts "\nRemoving: #{full_repo_name}"
   client = Octokit::Client.new(access_token: (ARGUMENTS['token']).to_s)
   response = client.delete_repository("#{full_repo_name}")
-  if reponse
+  if response
     puts "Successfully removed #{full_repo_name}"
   else
     puts "ERROR: Issue occurred repo may have not been deleted."
