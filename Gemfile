@@ -9,8 +9,8 @@ gem 'pry'
 gem 'require_all'
 gem 'tty-box'
 gem 'tty-prompt'
-
-
+gem 'tty-link'
+gem 'tty-color'
 
 group :development do
   gem 'rubocop', '~> 0.80.1', require: false

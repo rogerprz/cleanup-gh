@@ -6,10 +6,10 @@ def start
   ARGV.each do |a|
     params = a.split(':')
     ARGUMENTS[params[0]] = params[1]
-    puts "Argument: #{a}"
+    puts "Entered: #{params[0]}"
   end
   ARGV.clear
-  get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
+  # get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
   main_menu
 end
 
@@ -27,8 +27,7 @@ def print_repos(repos)
 end
 
 def print_options
-  puts "\n********************************************"
-  puts "|               AVAILABLE COMMANDS          |\n"
+  print TTY::Box.frame(align: :center, padding: [1,10,1,10]) { "AVAILABLE OPTIONS" }
   puts 'print-repos/pr              : View available repos'
   puts 'pfr/pf-repos                : View filtered repos'
   puts 'dr/ del-repo                : Delete a single repo'
