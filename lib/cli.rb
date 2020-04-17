@@ -77,7 +77,6 @@ def print_confirm_delete_repos
   puts "-------------------------------------"
   puts "|               Confirm              |"
   puts "-------------------------------------"
-
   puts "yes/y or no/n to return to main menu"
 end
 
