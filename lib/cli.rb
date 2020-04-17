@@ -23,16 +23,17 @@ def print_repos(repos)
     puts "\n#{repo['name']}"
     puts repo['html_url']
   end
+  puts "Total: #{repos.size}"
 end
 
 def print_options
   puts "\n********************************************"
-  puts "AVAILABLE COMMANDS \n"
+  puts "|               AVAILABLE COMMANDS          |\n"
   puts 'print-repos/pr              : View available repos'
   puts 'pfr/pf-repos                : View filtered repos'
-  puts 'dr/ del-repo               : Delete a single repo'
-  puts 'frepo/fr             : Filters repos before removing them from github'
-  puts 'del-repos-f                 : Will delete all filtered repos'
+  puts 'dr/ del-repo                : Delete a single repo'
+  puts 'frepo/fr                    : Filters repos before removing them from github'
+  puts 'del-f-repos/del-fr          : Will delete all filtered repos'
   puts 'del-all-repos               : Will delete all repos (Dangerous)'
   puts 'exit/e                      : Exits program'
   puts "\n********************************************"
@@ -53,10 +54,12 @@ def handle_input(input)
   when 'pf-repos', 'pfr'
     print_repos(ARGUMENTS['select_repos'])
     main_menu
-  when 'frepo', 'fr'
+  when 'fr', 'frepo'
     get_filter_key
   when "dr", "del-repo"
     get_repo_url_input
+  when "del-f-repos", "del-fr"
+    confirm_delete_filtered_repos
   when 'exit', 'e'
     abort('Goodbye')
   else
@@ -65,19 +68,58 @@ def handle_input(input)
   end
 end
 
+def print_confirm_delete_repos
+  print_repos(ARGUMENTS["select_repos"])
+  puts "-------------------------------------"
+  puts "|               WARNING             |"
+  puts "-------------------------------------"
+  puts "You are going to permanently delete #{ARGUMENTS['select_repos'].size}"
+  puts "-------------------------------------"
+  puts "|               Confirm              |"
+  puts "-------------------------------------"
+
+  puts "yes/y or no/n to return to main menu"
+end 
+
+def confirm_delete_filtered_repos
+  print_confirm_delete_repos
+  input = gets.chomp
+
+  case input
+  when 'yes', 'y'
+    handle_delete_repos(ARGUMENTS['select_repos'])
+  when 'no', 'n'
+    main_menu
+  else
+    puts "Invalid option"
+    confirm_delete_filtered_repos
+  end
+end
+
+def handle_delete_repos(repos)
+  repos.each do |repo|
+    remove_repo(repo["name"])
+  end
+  main_menu
+end
+
 def get_filter_key
-  puts "Enter the repo name or 'c' to cancel and return to main menu: \n\n"
+  puts "\n*************************"
+  puts "Enter'c' to cancel and return to main menu: \n\n"
+  puts "Enter key words to filter repos. i.e. user, ruby, 05191990, april"
+
   input = gets.chomp
   main_menu if input == 'cancel'
   handle_repo_filter(input)
 end
 
-def handle_repo_filter(value)
+def handle_repo_filter(key)
   ARGUMENTS['select_repos'] =
     ARGUMENTS['repos'].select do |repo|
-      binding.pry
-      repo["name"]
+      repo["name"].include?(key)
     end
+  print_repos(ARGUMENTS['select_repos'])
+  main_menu
 end
 
 def get_repo_url_input
@@ -96,6 +138,7 @@ def handle_repo_delete(repo_name)
   case input
   when "yes", "y"
     remove_repo(repo_name)
+    main_menu
   when "no", "n"
     get_repo_url_input
   when "cancel"

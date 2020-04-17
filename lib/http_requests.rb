@@ -29,6 +29,7 @@ def get_repos_with_paging(uri)
   end
   puts "Success! We found #{results.size} repos."
   ARGUMENTS['repos'] = results
+  ARGUMENTS['select_repos'] = results
 end
 
 def response_data(response)
@@ -38,9 +39,13 @@ def response_data(response)
 end
 
 def remove_repo(repo_name)
-  puts "\n\n\nREPO_NAME: #{repo_name}"
+  puts "\nRemoving: #{repo_name}"
   client = Octokit::Client.new(access_token: (ARGUMENTS['token']).to_s)
   response = client.delete_repository("#{ARGUMENTS['username']}/#{repo_name}")
-
-  main_menu
+  if reponse
+    puts "Successfully removed #{repo_name}"
+  else
+    puts "ERROR: Issue occurred repo may have not been deleted."
   end
+  response
+end
