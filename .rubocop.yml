@@ -17,6 +17,8 @@ Metrics/MethodLength:
   Enabled: false
 Metrics/ClassLength:
   Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
 
 Naming/AccessorMethodName:
   Enabled: false
