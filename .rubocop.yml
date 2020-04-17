@@ -18,6 +18,10 @@ Metrics/MethodLength:
 Metrics/ClassLength:
   Enabled: false
 
+Naming/AccessorMethodName:
+  Enabled: false
+Style/StringLiterals:
+  Enabled: false
 Style/MissingElse:
   Enabled: false
 Style/MultilineMethodSignature:

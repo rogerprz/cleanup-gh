@@ -2,50 +2,15 @@
 
 require 'dotenv/load'
 
-ARGUMENTS = {}
-
 def start
-  data = {}
   ARGV.each do |a|
-    value = a.split(':')
-    ARGUMENTS[value[0]] = value[1]
+    params = a.split(':')
+    ARGUMENTS[params[0]] = params[1]
     puts "Argument: #{a}"
-    puts data
   end
   ARGV.clear
-  get_repos_with_paging('https://api.github.com/users/rogerprz/repos?per_page=100')
-  filter_repos
-end
-
-def get_repos(uri)
-  escaped_url = URI::DEFAULT_PARSER.escape(uri)
-  uri = URI.parse(escaped_url)
-  Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
-    request = Net::HTTP::Get.new(uri)
-    request['accept'] = 'application/vnd.github.v3+json'
-    request.basic_auth(' ', "Basic #{ARGUMENTS['token']}")
-    response = http.request(request)
-    { data: response_data(response), header: response.header }
-  end
-end
-
-def get_repos_with_paging(uri)
-  results = []
-  page = 1
-
-  escaped_base_url = URI::DEFAULT_PARSER.escape("#{uri}&page=#{page}")
-  uri = escaped_base_url.to_s
-  response = get_repos(uri)
-  results.concat(response.fetch(:data))
-  # skip_count = response.fetch(:data).size
-  until response.fetch(:data).empty?
-    page += 1
-    uri = "#{uri}&page=#{page}"
-    response = get_repos(uri)
-    results.concat(response.fetch(:data))
-  end
-  puts "Success! We found #{results.size} repos."
-  ARGUMENTS['repos'] = results
+  get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
+  main_menu
 end
 
 def filter_repos
@@ -53,46 +18,90 @@ def filter_repos
   handle_input(request_input)
 end
 
-def response_data(response)
-  return unless response.code == '200'
-
-  data = JSON.parse(response.body)
-  data
-end
-
-def print_repos
-  ARGUMENTS['repos'].each do |repo|
+def print_repos(repos)
+  repos.each do |repo|
+    puts "\n#{repo['name']}"
     puts repo['html_url']
   end
 end
 
 def print_options
   puts "\n********************************************"
-  puts 'Available options'
-  puts 'print-repos  : view available repos'
-  puts 'print-f-repos: view filtered repos'
-  puts 'filter - filters repos before removing them from github'
-  puts 'del-repos-f : Will delete all filtered repos'
-  puts 'del-all-repos : Will delete all repos (Dangerous)'
-  puts 'exit/e : Exits program'
+  puts "AVAILABLE COMMANDS \n"
+  puts 'print-repos/pr              : View available repos'
+  puts 'pfr/pf-repos                : View filtered repos'
+  puts 'dr/ del-repo               : Delete a single repo'
+  puts 'frepo/fr             : Filters repos before removing them from github'
+  puts 'del-repos-f                 : Will delete all filtered repos'
+  puts 'del-all-repos               : Will delete all repos (Dangerous)'
+  puts 'exit/e                      : Exits program'
+  puts "\n********************************************"
 end
 
-def request_input
+def main_menu
+  print_options
   input = gets.chomp
   puts "Input: #{input}\n"
-  input
+  handle_input(input)
 end
 
 def handle_input(input)
   case input
-  when 'print-repos'
-    print_repos
+  when 'print-repos', 'pr'
+    print_repos(ARGUMENTS['repos'])
+    main_menu
+  when 'pf-repos', 'pfr'
+    print_repos(ARGUMENTS['select_repos'])
+    main_menu
+  when 'frepo', 'fr'
+    get_filter_key
+  when "dr", "del-repo"
+    get_repo_url_input
   when 'exit', 'e'
     abort('Goodbye')
   else
     puts 'Not a valid option'
-    puts print_options
-    handle_input(request_input)
+    main_menu
   end
 end
 
+def get_filter_key
+  puts "Enter the repo name or 'c' to cancel and return to main menu: \n\n"
+  input = gets.chomp
+  main_menu if input == 'cancel'
+  handle_repo_filter(input)
+end
+
+def handle_repo_filter(value)
+  ARGUMENTS['select_repos'] =
+    ARGUMENTS['repos'].select do |repo|
+      binding.pry
+      repo["name"]
+    end
+end
+
+def get_repo_url_input
+  puts "Enter the repo name or 'c' to cancel and return to main menu: \n\n"
+  input = gets.chomp
+  main_menu if input == 'cancel'
+  handle_repo_delete(input)
+end
+
+def handle_repo_delete(repo_name)
+  puts "#{repo_name} WILL BE DELETED \n"
+  puts " #{repo_name}"
+  puts "\nConfirm? yes/no : y/n"
+  puts "Enter 'cancel' to return to main menu\n\n"
+  input = gets.chomp
+  case input
+  when "yes", "y"
+    remove_repo(repo_name)
+  when "no", "n"
+    get_repo_url_input
+  when "cancel"
+    main_menu
+  else
+    puts "Not a valid option"
+    get_repo_url_input
+  end
+end
