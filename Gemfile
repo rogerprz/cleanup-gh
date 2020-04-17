@@ -7,6 +7,10 @@ gem 'dotenv-rails', groups: %i[development test]
 gem 'json'
 gem 'pry'
 gem 'require_all'
+gem 'tty-box'
+gem 'tty-prompt'
+
+
 
 group :development do
   gem 'rubocop', '~> 0.80.1', require: false
