@@ -20,7 +20,7 @@ end
 
 def print_repos(repos)
   repos.each do |repo|
-    puts "\n#{repo['name']}"
+    puts "\n#{repo['full_name']}"
     puts repo['html_url']
   end
   puts "Total: #{repos.size}"
@@ -98,7 +98,7 @@ end
 
 def handle_delete_repos(repos)
   repos.each do |repo|
-    remove_repo(repo["name"])
+    remove_repo(repo["full_name"])
   end
   main_menu
 end
@@ -116,7 +116,7 @@ end
 def handle_repo_filter(key)
   ARGUMENTS['select_repos'] =
     ARGUMENTS['repos'].select do |repo|
-      repo["name"].include?(key)
+      repo['full_repo_name'].include?(key)
     end
   print_repos(ARGUMENTS['select_repos'])
   main_menu
