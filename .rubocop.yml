@@ -1,0 +1,39 @@
+require:
+  - rubocop-performance
+
+AllCops:
+  EnabledByDefault: true
+  TargetRubyVersion: 2.5.1
+  Exclude:
+    - "bin/**/*"
+    - "Gemfile"
+    - "vendor/bundle/**/*"
+
+Metrics/AbcSize:
+  Max: 62
+# We don't care about method length, since we check method cyclomatic
+# complexity.
+Metrics/MethodLength:
+  Enabled: false
+Metrics/ClassLength:
+  Enabled: false
+
+Style/MissingElse:
+  Enabled: false
+Style/MultilineMethodSignature:
+  Enabled: false
+Style/HashEachMethods:
+  Enabled: true
+Style/Copyright:
+  Enabled: false
+Style/Documentation:
+  Enabled: false
+Style/DocumentationMethod:
+  Enabled: false
+Style/MethodCallWithArgsParentheses:
+  Enabled: false
+
+# Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
+# URISchemes: http, https
+Layout/LineLength:
+  Max: 169
