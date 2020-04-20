@@ -11,62 +11,58 @@ def start
   end
   ARGV.clear
 
-  # get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
+  get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
   main_menu
 end
 
 def main_menu
   input = print_options
-  puts "Input: #{input}\n"
+  puts "Selected: #{input}\n"
   handle_input(input)
 end
 
 def print_options
   prompt = TTY::Prompt.new
   print TTY::Box.frame(
-    align: :center, padding: [1, 10, 1, 10]
+    align: :center, padding: [1, 10, 1, 10], title: { top_left: 'Github', bottom_right: '@rogerprz' }
   ) { "AVAILABLE OPTIONS" }
-  input = prompt.select('', symbols: { marker: '->' }) do |menu|
-    menu.choice 'View available repos', "pr", key: "pr"
-    menu.choice 'View filtered repos', "pfr"
-    menu.choice 'Delete single repo', "dr"
-    menu.choice 'Filter repos', "fr"
-    menu.choice 'Remove selected repos', "dfr"
-    menu.choice 'Remove all repos (Dangerous)', "dar"
-    menu.choice 'Exit program', "exit", key: 'e'
+  input =
+    prompt.select('', symbols: { marker: '->' }) do |menu|
+      menu.choice 'View available repos - pr', "pr", key: "pr"
+      menu.choice 'View filtered repos - pfr', "pfr", key: "pfr"
+      menu.choice 'Delete single repo', "dr"
+      menu.choice 'Filter repos', "fr"
+      menu.choice 'Remove selected repos', "dfr"
+      menu.choice 'Remove all repos (Dangerous)', "dar"
+      menu.choice 'Exit program', "exit", key: 'e'
     end
-  puts "Selected: #{input}"
   input
 end
 
 def filter_repos
-  print_options
-  handle_input(request_input)
+  handle_input(print_options)
 end
 
 def print_repos(repos)
   repos.each do |repo|
-    puts "\n#{repo['full_name']}"
-    puts repo['html_url']
+    puts TTY::Link.link_to("\n#{repo['full_name']}", repo['html_url'])
   end
   puts "Total: #{repos.size}"
 end
 
-
-
 def handle_input(input)
   case input
-  when 'print-repos', 'pr'
+  when 'pr'
     print_repos(ARGUMENTS['repos'])
     main_menu
-  when 'pf-repos', 'pfr'
+  when  'pfr'
     print_repos(ARGUMENTS['select_repos'])
     main_menu
-  when 'fr', 'frepo'
+  when 'fr'
     get_filter_key
-  when "dr", "del-repo"
+  when "dr"
     get_repo_url_input
-  when "del-f-repos", "del-fr"
+  when 'dfr'
     confirm_delete_filtered_repos
   when 'exit', 'e'
     abort('Goodbye')
@@ -78,14 +74,14 @@ end
 
 def print_confirm_delete_repos
   print_repos(ARGUMENTS["select_repos"])
-  puts "-------------------------------------"
-  puts "|               WARNING             |"
-  puts "-------------------------------------"
-  puts "You are going to permanently delete #{ARGUMENTS['select_repos'].size}"
-  puts "-------------------------------------"
-  puts "|               Confirm              |"
-  puts "-------------------------------------"
-  puts "yes/y or no/n to return to main menu"
+  print TTY::Box.frame(
+    align: :center, padding: [1, 10, 1, 10], title: { top_left: 'Github', bottom_right: '@rogerprz' }
+  ) {
+    "WARNING \n
+    You are going to permanently delete #{ARGUMENTS['select_repos'].size} repos. \n
+    CONFIRM\n
+    yes/y or no/n to return to main menu"
+  }
 end
 
 def confirm_delete_filtered_repos
@@ -111,16 +107,20 @@ def handle_delete_repos(repos)
 end
 
 def get_filter_key
-  puts "\n*********************************************************"
-  puts "-----------------------------------------------------------"
-  puts "|                         FILTER REPOS                    |"
-  puts "-----------------------------------------------------------"
-  puts "Enter'c' to cancel and return to main menu: \n\n"
-  puts "Enter keywords to filter repos. i.e. user, ruby, 05191990, april"
-
+  print_filter_key
   input = gets.chomp
   main_menu if input == 'cancel'
   handle_repo_filter(input)
+end
+
+def print_filter_key
+  print TTY::Box.frame(
+    align: :center, padding: [1, 10, 1, 10], title: { top_left: 'Github', bottom_right: '@rogerprz' }
+  ) {
+    "FILTER REPOS \n
+    Enter'c' to cancel and return to main menu: \n
+    Enter keywords to filter repos. i.e. user, ruby, 05191990, april"
+  }
 end
 
 def handle_repo_filter(key)
