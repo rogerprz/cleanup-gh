@@ -66,7 +66,7 @@ def handle_input(input)
   when "dr"
     get_repo_url_input
   when 'dfr'
-    confirm_delete_filtered_repos
+    confirm_filtered_repo_removal(ARGUMENTS['select_repos'])
   when 'exit', 'e'
     abort('Goodbye')
   else
@@ -80,7 +80,7 @@ def select_multiple_repos
   repos = ARGUMENTS['repos'].map { |repo| repo['full_name'] }
   results = prompt.multi_select('Select the repos you would like to remove', repos)
   puts results
-  confirm_delete_filtered_repos(results)
+  confirm_filtered_repo_removal(results)
 end
 
 def print_confirm_delete_repos(repos)
@@ -95,7 +95,7 @@ def print_confirm_delete_repos(repos)
   }
 end
 
-def confirm_delete_filtered_repos(repos)
+def confirm_filtered_repo_removal(repos)
   print_confirm_delete_repos(repos)
   input = gets.chomp
 
@@ -106,14 +106,13 @@ def confirm_delete_filtered_repos(repos)
     main_menu
   else
     puts "Invalid option"
-    confirm_delete_filtered_repos
+    confirm_filtered_repo_removal
   end
 end
 
 def handle_repo_removal(repos)
   repos.each do |repo|
     repo_name = repo["full_name"] || repo
-    binding.pry
     remove_repo(repo_name)
   end
   main_menu
