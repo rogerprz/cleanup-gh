@@ -15,17 +15,10 @@ def start
   main_menu
 end
 
-def filter_repos
-  print_options
-  handle_input(request_input)
-end
-
-def print_repos(repos)
-  repos.each do |repo|
-    puts "\n#{repo['full_name']}"
-    puts repo['html_url']
-  end
-  puts "Total: #{repos.size}"
+def main_menu
+  input = print_options
+  puts "Input: #{input}\n"
+  handle_input(input)
 end
 
 def print_options
@@ -57,11 +50,20 @@ def print_options
   # puts "\n********************************************"
 end
 
-def main_menu
-  input = print_options
-  puts "Input: #{input}\n"
-  handle_input(input)
+def filter_repos
+  print_options
+  handle_input(request_input)
 end
+
+def print_repos(repos)
+  repos.each do |repo|
+    puts "\n#{repo['full_name']}"
+    puts repo['html_url']
+  end
+  puts "Total: #{repos.size}"
+end
+
+
 
 def handle_input(input)
   case input
