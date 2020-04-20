@@ -10,7 +10,7 @@ def start
     puts "Entered: #{params[0]}"
   end
   ARGV.clear
-
+  print_welcome
   get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
   main_menu
 end
@@ -30,8 +30,9 @@ def print_options
     prompt.select('', symbols: { marker: '->' }) do |menu|
       menu.choice 'View available repos - pr', "pr", key: "pr"
       menu.choice 'View filtered repos - pfr', "pfr", key: "pfr"
-      menu.choice 'Delete single repo', "dr"
       menu.choice 'Filter repos', "fr"
+      menu.choice 'Select multiple repos to remove', 'mrd'
+      menu.choice 'Delete single repo', "dr"
       menu.choice 'Remove selected repos', "dfr"
       menu.choice 'Remove all repos (Dangerous)', "dar"
       menu.choice 'Exit program', "exit", key: 'e'
@@ -45,7 +46,7 @@ end
 
 def print_repos(repos)
   repos.each do |repo|
-    puts TTY::Link.link_to("\n#{repo['full_name']}", repo['html_url'])
+    puts TTY::Link.link_to((repo['full_name']).to_s, repo['html_url'])
   end
   puts "Total: #{repos.size}"
 end
@@ -55,11 +56,13 @@ def handle_input(input)
   when 'pr'
     print_repos(ARGUMENTS['repos'])
     main_menu
-  when  'pfr'
+  when 'pfr'
     print_repos(ARGUMENTS['select_repos'])
     main_menu
   when 'fr'
-    get_filter_key
+    filter_key
+  when 'mrd'
+    select_multiple_repos
   when "dr"
     get_repo_url_input
   when 'dfr'
@@ -72,25 +75,33 @@ def handle_input(input)
   end
 end
 
-def print_confirm_delete_repos
-  print_repos(ARGUMENTS["select_repos"])
+def select_multiple_repos
+  prompt = TTY::Prompt.new
+  repos = ARGUMENTS['repos'].map { |repo| repo['full_name'] }
+  results = prompt.multi_select('Select the repos you would like to remove', repos)
+  puts results
+  confirm_delete_filtered_repos(results)
+end
+
+def print_confirm_delete_repos(repos)
+  print_repos(repos)
   print TTY::Box.frame(
     align: :center, padding: [1, 10, 1, 10], title: { top_left: 'Github', bottom_right: '@rogerprz' }
   ) {
     "WARNING \n
-    You are going to permanently delete #{ARGUMENTS['select_repos'].size} repos. \n
+    You are going to permanently remove #{repos.size} repos. \n
     CONFIRM\n
     yes/y or no/n to return to main menu"
   }
 end
 
-def confirm_delete_filtered_repos
-  print_confirm_delete_repos
+def confirm_delete_filtered_repos(repos)
+  print_confirm_delete_repos(repos)
   input = gets.chomp
 
   case input
   when 'yes', 'y'
-    handle_delete_repos(ARGUMENTS['select_repos'])
+    handle_repo_removal(repos)
   when 'no', 'n'
     main_menu
   else
@@ -99,17 +110,20 @@ def confirm_delete_filtered_repos
   end
 end
 
-def handle_delete_repos(repos)
+def handle_repo_removal(repos)
   repos.each do |repo|
-    remove_repo(repo["full_name"])
+    repo_name = repo["full_name"] || repo
+    binding.pry
+    remove_repo(repo_name)
   end
   main_menu
 end
 
-def get_filter_key
+def filter_key
   print_filter_key
+  puts "Enter filter key: "
   input = gets.chomp
-  main_menu if input == 'cancel'
+  main_menu if input == 'c'
   handle_repo_filter(input)
 end
 
