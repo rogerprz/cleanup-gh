@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'dotenv/load'
+include TTY::Color
 
 def start
   ARGV.each do |a|
@@ -9,6 +10,8 @@ def start
     puts "Entered: #{params[0]}"
   end
   ARGV.clear
+  include TTY::Color
+
   # get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
   main_menu
 end
@@ -27,20 +30,41 @@ def print_repos(repos)
 end
 
 def print_options
-  print TTY::Box.frame(align: :center, padding: [1,10,1,10]) { "AVAILABLE OPTIONS" }
-  puts 'print-repos/pr              : View available repos'
-  puts 'pfr/pf-repos                : View filtered repos'
-  puts 'dr/ del-repo                : Delete a single repo'
-  puts 'frepo/fr                    : Filters repos before removing them from github'
-  puts 'del-f-repos/del-fr          : Will delete all filtered repos'
-  puts 'del-all-repos               : Will delete all repos (Dangerous)'
-  puts 'exit/e                      : Exits program'
-  puts "\n********************************************"
+  prompt = TTY::Prompt.new
+  choices = [
+    { key: 'r', name: 'View available repos', value: :pr },
+    { key: 'f', name: 'View filtered repos', value: :pfr },
+    { key: 'd', name: 'Delete single repo', value: :dr }
+  ]
+  print TTY::Box.frame(
+    align: :center, padding: [1, 10, 1, 10]
+  ) {
+          "AVAILABLE OPTIONS"
+        }
+  input =
+    prompt.select('', help: "'e' to exit program", symbols: { marker: '->' }) do |menu|
+      menu.choice 'View available repos', "pr", key: "pr"
+      menu.choice 'View filtered repos', "pfr"
+      menu.choice 'Delete single repo', "dr"
+      menu.choice 'Filter repos', "fr"
+      menu.choice 'Remove selected repos', "dfr"
+      menu.choice 'Remove all repos (Dangerous)', "dar"
+      menu.choice 'Exit program', "exit", 'e'
+    end
+  puts "Selected: #{input}"
+  input
+  # puts 'print-repos/pr              : View available repos'
+  # puts 'pfr/pf-repos                : View filtered repos'
+  # puts 'dr/ del-repo                : Delete a single repo'
+  # puts 'frepo/fr                    : Filters repos before removing them from github'
+  # puts 'del-f-repos/del-fr          : Will delete all filtered repos'
+  # puts 'del-all-repos               : Will delete all repos (Dangerous)'
+  # puts 'exit/e                      : Exits program'
+  # puts "\n********************************************"
 end
 
 def main_menu
-  print_options
-  input = gets.chomp
+  input = print_options
   puts "Input: #{input}\n"
   handle_input(input)
 end
