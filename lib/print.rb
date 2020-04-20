@@ -13,7 +13,6 @@ def print_welcome
       bottom_right: '@rogerprz'
     }
   ) {
-          "WELCOME TO GITHUB REPO CLEANUP CLI\n
-          #{link}"
+          "WELCOME TO GITHUB REPO CLEANUP CLI"
         }
 end
