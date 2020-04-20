@@ -10,7 +10,6 @@ def start
     puts "Entered: #{params[0]}"
   end
   ARGV.clear
-  include TTY::Color
 
   # get_repos_with_paging("https://api.github.com/users/#{ARGUMENTS['username']}/repos?per_page=100")
   main_menu
@@ -31,16 +30,11 @@ end
 
 def print_options
   prompt = TTY::Prompt.new
-  choices = [
-    { key: 'r', name: 'View available repos', value: :pr },
-    { key: 'f', name: 'View filtered repos', value: :pfr },
-    { key: 'd', name: 'Delete single repo', value: :dr }
-  ]
   print TTY::Box.frame(
     align: :center, padding: [1, 10, 1, 10]
   ) {
           "AVAILABLE OPTIONS"
-        }
+  }.red
   input =
     prompt.select('', help: "'e' to exit program", symbols: { marker: '->' }) do |menu|
       menu.choice 'View available repos', "pr", key: "pr"

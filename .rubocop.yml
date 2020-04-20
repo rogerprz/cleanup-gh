@@ -13,6 +13,8 @@ Metrics/AbcSize:
   Max: 62
 # We don't care about method length, since we check method cyclomatic
 # complexity.
+Style/MixinUsage:
+  Enabled: false
 Metrics/MethodLength:
   Enabled: false
 Metrics/ClassLength:
